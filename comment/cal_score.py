@@ -21,16 +21,16 @@ path = os.path.dirname(os.path.abspath(__file__))
 
 # 导入 sentiment dictionary，情感极性词
 posdict = get_data(
-    path + '/sentiment dictionary/positive and negative dictionary/posdict.txt')  # 肯定极性，如：爱，安，好，帮，多，产量多
+    path + '/sentiment dictionary/positive and negative dictionary/posdict.txt')  # 肯定极性，如：爱，安，好，帮，多
 negdict = get_data(
-    path + '/sentiment dictionary/positive and negative dictionary/negdict.txt')  # 否定极性，如：矮，悲，笨，差，少，少烦我
-
-posMVdict = get_data(path + '/sentiment dictionary/positive and negative dictionary/positive star.txt')  # 肯定极性：客流量少
-negMVdict = get_data(path + '/sentiment dictionary/positive and negative dictionary/negative star.txt')  # 否定极性，客流量多
-posdaoyandict = get_data(path + '/sentiment dictionary/positive and negative dictionary/positive star.txt')  # 肯定极性，娱乐设施有趣
-negprodict = get_data(path + '/sentiment dictionary/positive and negative dictionary/negative star.txt')  # 否定极性，娱乐设施无趣
-posstardict = get_data(path + '/sentiment dictionary/positive and negative dictionary/positive star.txt')  # 肯定极性，娱乐设施状况好
-negstardict = get_data(path + '/sentiment dictionary/positive and negative dictionary/negative star.txt')  # 否定极性，娱乐设施状况差
+    path + '/sentiment dictionary/positive and negative dictionary/negdict.txt')  # 否定极性，如：矮，悲，笨，差，少
+#导入极性词典，不同的维度应该有不同的词典，这里暂时只用同一个
+posMVdict = get_data(path + '/sentiment dictionary/positive and negative dictionary/positive star.txt')  # 肯定极性
+negMVdict = get_data(path + '/sentiment dictionary/positive and negative dictionary/negative star.txt')  # 否定极性
+posdaoyandict = get_data(path + '/sentiment dictionary/positive and negative dictionary/positive star.txt')  # 肯定极性
+negprodict = get_data(path + '/sentiment dictionary/positive and negative dictionary/negative star.txt')  # 否定极性
+posstardict = get_data(path + '/sentiment dictionary/positive and negative dictionary/positive star.txt')  # 肯定极性
+negstardict = get_data(path + '/sentiment dictionary/positive and negative dictionary/negative star.txt')  # 否定极性
 
 disstatusdict=get_data(path + '/sentiment dictionary/disturb dictionary/disturb status.txt')
 
@@ -57,7 +57,7 @@ inversedict = get_data(
 dynamic_sentiment = get_data(
     path + '/sentiment dictionary/dynamic dictionary/dynamic sentiment.txt')  # 结合语境的情感极性词，有：大，小，高，低，多，少，紧，浓，淡
 dynamic_inverse = get_data(
-    path + '/sentiment dictionary/dynamic dictionary/dynamic inverse.txt')  # 结合特殊极性词后与常规极性相反的词，有：价格，人，油烟，烟尘，商业，票价，和dynamic_sentiment的词相结合时，极性逆转
+    path + '/sentiment dictionary/dynamic dictionary/dynamic inverse.txt')  # 结合特殊极性词后与常规极性相反的词，有：价格，人，和dynamic_sentiment的词相结合时，极性逆转
 dynamic_remove = get_data(
     path + '/sentiment dictionary/dynamic dictionary/dynamic remove.txt')  # 结合特殊极性词后无意义的词，有：山，爬山，时间（我觉得这个地方最后的时间应该是爬山时间之类的，而不能仅仅是时间）
 dynamic_property = get_data(
@@ -83,17 +83,6 @@ inverse_para = - 1.0
 ordinary_para = 0.2
 neg_reduce = 1
 
-def score_trans(num):  #对(poscount-negcount)进行处理，得到分数
-    if num > 0:
-        sgn = 1
-    else:
-        sgn = -1
-    score = abs(num) ** root_para * sgn * multi_para + average_score
-    if score > max_score:
-        score = max_score  #(score - 6)
-    if score < min_score:
-        score = min_score
-    return score
 
 def score_trans2(count):  #通过对(poscount-negcount)进行处理，得到分数
     if count < -3:
@@ -237,7 +226,7 @@ def divContent(content,paraposdict,paranegdict):
         
     n = len(seg_content)
     i = 0
-    while (i<n-1):				
+    while (i<n-1):
         words =  seg_content[i]
         words_next = seg_content[i+1]
         if (words in paraposdict or words in paranegdict)and(words_next!= u'，'):
@@ -251,7 +240,7 @@ def divContent(content,paraposdict,paranegdict):
      
     return seg_content
 
-def sentimentScore(content):  #计算content的整体情感分数
+def sentimentScore(content):  #同sentimentstarscore,基本不用
     i = 0  # word position counter
     a = 0  # sentiment word position
     poscount = 0  # count a positive word
@@ -333,7 +322,7 @@ def sentimentScore(content):  #计算content的整体情感分数
     return score_trans(poscount - negcount)
     '''
 
-def sentimentScoreStar(content):  #计算content的娱乐程度分数
+def sentimentScoreStar(content):
 
     i = 0  # word position counter
     a = 0  # sentiment word position
@@ -342,16 +331,9 @@ def sentimentScoreStar(content):  #计算content的娱乐程度分数
     poscountlist=[0]
     negcountlist=[0]
 
-
     seg_content=divContent(content,posstardict,negstardict)
 
     for word in seg_content:
-        '''
-        if word in dynamic_property and i!= len(seg_content)-1:
-            if seg_content[i+1] != u'，':
-                i += 1
-                continue
-        '''
         if word in dynamic_property:  #判断动态词性的词是情感词还是程度副词，比如 “老”，“好”，如果是，再详细判断
             k = i + 1
             flag = 0

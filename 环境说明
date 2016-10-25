@@ -1,0 +1,13 @@
+需要的库：
+jieba
+os
+codecs
+xlwt
+xlrd
+ConfigParser
+
+入口：
+dict_main.py
+
+其他：
+jieba库在本程序中是wordDivision,不用再import jieba

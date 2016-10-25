@@ -32,14 +32,14 @@ if 1:
     #获取整列数据#
     col_comment = table.col_values(column_comment_num )
     col_date = table.col_values(column_date_num )
-    
+    nrows = table.nrows
     #写入表格#
     table_w = xlwt.Workbook()
     #工作表名称#
     sheet1 = table_w.add_sheet('result')				#写入表表名为result，赋给变量sheet1
     #写sheet的第一行
     countTotal=[]
-    countGood=[] 
+    countGood=[]
     for j in range(len(classification)):
         sheet1.write(0,j+2,classification[j][0])		#第一行第三列开始：录入classification中每个元素列表的第一个元素
         countTotal.append(0)
@@ -49,11 +49,11 @@ if 1:
 
     row = 0					#有效点评内容行数
     k = 0					#点评内容行数
-    for contents in col_comment :		#遍历点评这一列，每行点评内容放到contents
-        if contents == u'':			#若为空，则k+=1,continue
+    for i in range(nrows) :		#遍历点评这一列，每行点评内容放到col_comment[i]
+        if col_comment[i] == u'':			#若为空，则k+=1,continue
             k += 1
             continue
-        if contents == u'点评内容':	#若为点评内容，则都自加，continue
+        if col_comment[i] == u'点评内容':	#若为点评内容，则都自加，continue
             row += 1
             k += 1
             continue
@@ -64,24 +64,28 @@ if 1:
         if row > end_row:			#若有效点评行超过设定截止行，终止
             break
         #遇到空格跳过#
-        contents = contents.replace('<br/>','')
-        contents = contents.replace('&nbsp;','')
-        contents = contents.replace('\n','')
+        col_comment[i] = col_comment[i].replace('<br/>','')
+        col_comment[i] = col_comment[i].replace('&nbsp;','')
+        col_comment[i] = col_comment[i].replace('\n','')
 
-        comment = Comment(contents)
+        comment = Comment(col_comment[i])
         comment.calScore()
         print '\nComment',row,':'
-        print contents.strip('\n')
+        print col_comment[i].strip('\n')
         comment.printScore()
         j = 2
+        flag = 0
         for score in comment.average_score:
             if score != -1:
+                flag = 1
                 sheet1.write(row,j,score)
                 countTotal[j-2]+=1
                 if score>=7:
                     countGood[j-2]+=1
             j += 1
-        sheet1.write(row,0,contents)
+        if flag == 0:
+            sheet1.write(row, j-1, col_date[i]*2)#没有关键字的时候打分按照原先的星级评分来打分，但是要转换成10分制的打分，原先的星级评分满分是五分，所以暂时将星级分数加倍
+        sheet1.write(row,0,col_comment[i])
         sheet1.write(row,1,col_date[k])
         #sheet1.write(row,j,col_time[k])
         row += 1
@@ -96,23 +100,23 @@ if 1:
     
     table_w.save(output_file)
 
-else:
-    fileHandler = open('test.txt') #以读写方式处理文件IO  
-    fileHandler.seek(0)
-    i = 0
-    for contents in fileHandler.readlines():
-        contents = contents.decode('utf-8')
-        if contents == u'\n':
-            continue
-        i = i + 1
-        contents = contents.replace('<br/>','')
-        contents = contents.replace('&nbsp;','')
-        contents = contents.replace('\n','')
-        comment = Comment(contents)
-        comment.calScore()
-        print '\nComment',i,':'
-        print contents.strip('\n')
-        comment.printScore()
+# else:
+#     fileHandler = open('test.txt') #以读写方式处理文件IO
+#     fileHandler.seek(0)
+#     i = 0
+#     for col_comment[i] in fileHandler.readlines():
+#         col_comment[i] = col_comment[i].decode('utf-8')
+#         if col_comment[i] == u'\n':
+#             continue
+#         i = i + 1
+#         col_comment[i] = col_comment[i].replace('<br/>','')
+#         col_comment[i] = col_comment[i].replace('&nbsp;','')
+#         col_comment[i] = col_comment[i].replace('\n','')
+#         comment = Comment(col_comment[i])
+#         comment.calScore()
+#         print '\nComment',i,':'
+#         print col_comment[i].strip('\n')
+#         comment.printScore()
     
 print 'finished'
     

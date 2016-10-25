@@ -14,7 +14,6 @@ def get_data(filepath):
     if data[-1] == '\n':
         # 除去最后一个换行符#
         data = data[:-1]
-    print data
     _data = data.decode('utf-8').split('\n')  # 列表_data:将data用utf-8编码后按行分割，存储到_data
     data = []  # data：赋为空
     for word in _data:  # 将_data中的空行去掉，然后赋给data(此处只能去掉空行，而不能去掉有几个空格组成的行)
@@ -42,7 +41,7 @@ kw_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
 # os.listdir 获得当前目录中的内容#
 for kw_file in os.listdir(kw_path):  # 获取kw_path目录下所有文件，并将每个文件变成列表data模式，然后再添加到列表classfication
     classification3.append(get_data(os.path.join(kw_path, kw_file)))
-
+'''
 for category in classification3:
     if category[0] == u'演技':
         classification2.append(category)
@@ -66,37 +65,11 @@ for category in classification3:
         classification2.append(category)
         classification.append([u'服装评分'])
         break
-
-    
 '''    
 for category in classification3:
-    if category[0] == u'演技':
+    if category[0] == u'剧情':
         classification2.append(category)
-        classification.append([u'演技评分'])      
-        break
-
-for category in classification3:
-    if category[0] == u'服装':
-        classification2.append(category)
-        classification.append([u'服装评分'])
-        break
-
-for category in classification3:
-    if category[0] == u'马思纯':
-        classification2.append(category)
-        classification.append([u'马思纯评分'])      
-        break
-        
-for category in classification3:
-    if category[0] == u'台词':
-        classification2.append(category)
-        classification.append([u'台词评分'])      
-        break
-        
-for category in classification3:
-    if category[0] == u'颜':
-        classification2.append(category)
-        classification.append([u'颜评分'])      
+        classification.append([u'剧情评分'])
         break
 
 for category in classification3:
@@ -112,9 +85,9 @@ for category in classification3:
         break
 
 for category in classification3:
-    if category[0] == u'南派三叔':
+    if category[0] == u'音乐':
         classification2.append(category)
-        classification.append([u'南派三叔评分'])      
+        classification.append([u'音乐评分'])
         break
 
 for category in classification3:
@@ -122,7 +95,6 @@ for category in classification3:
         classification2.append(category)
         classification.append([u'导演评分'])      
         break
-'''        
 
 
 classification.append([u'总评', u''])  # classfication里添加总评和空字符
@@ -136,8 +108,6 @@ posdaoyandict = get_data(path + '/sentiment dictionary/positive and negative dic
 negdaoyandict = get_data(path + '/sentiment dictionary/positive and negative dictionary/negative star.txt')  # 否定极性
 posstardict = get_data(path + '/sentiment dictionary/positive and negative dictionary/positive star.txt')  # 肯定极性
 negstardict = get_data(path + '/sentiment dictionary/positive and negative dictionary/negative star.txt')  # 否定极性
-
-
 
 disstatusdict=get_data(path + '/sentiment dictionary/disturb dictionary/disturb status.txt')
 diskeydict=get_data(path + '/sentiment dictionary/disturb dictionary/disturb keyword.txt')
@@ -153,7 +123,7 @@ class Comment:
         self.average_score = []  #average_score:平均分
         for category in classification:  #对于keywords里的每个文本变成的data列表给予相应的评分，还有总分也有一个评分
             self.score.append([])
-        self.score[-1].append(5)
+        # self.score[-1].append(7) #默认7分
 
 
     def calScore(self):
@@ -201,14 +171,14 @@ class Comment:
                     i = i + 1  #每取classification里内容一次，i+1，即i是指示当前所取的classfication的第几个元素
                 #print sent_d,order,'!', #test
                 if preorder == [
-                    -1] or preorder == [] or order == [] or preorder == order:  # or [x for x in preorder if x in order] !=[]: ？？代表意思不一样吧？？
+                    -1] or preorder == [] or order == [] or preorder == order:
                     sent = sent + u'，' + sent_d  #sent的内容就要加上，短句
                     if preorder == [-1] or preorder == []:
                         preorder = order[:]  #order赋给preorder
                 else:
                     # method of dictionary
                     for i in preorder:
-                        
+                        #print '---------------------1-------------------------------'
                         if i == indexMV:
                             for sent_disturb in disstatusdict:
                                 sentDel=sent.replace(sent_disturb,u'')
@@ -312,6 +282,7 @@ class Comment:
 
 
                 for i in preorder:
+                        #print '----------------2---------------------------'
                         if i == indexMV:
                             for sent_disturb in disstatusdict:
                                 sentDel=sent.replace(sent_disturb,u'')
@@ -410,9 +381,6 @@ class Comment:
                                     self.score[i].append(s)
                                     self.score[-1].append(s)
                                     break
-                     
-
-
     def printScore(self):
         # print self.score  #test
         i = 0
@@ -424,5 +392,3 @@ class Comment:
                 print classification[i][0] ,str(i),':', round(sum(self.score[i]) / len(self.score[i]), 1)
             else:
                 self.average_score.append(-1)
-                #print u'整体',round(sentimentScore(self.contents), 1)       #加入整体分数
-                #self.average_score.append(round(sentimentScore(self.contents), 1))
